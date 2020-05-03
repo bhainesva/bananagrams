@@ -1,0 +1,17 @@
+.Board
+{
+  width: 100%;
+  margin: 20px;
+  position: relative;
+
+  &-square
+  {
+    background-color: lightgray;
+    border: 2px solid paleturquoise;
+
+    &.is-hovered
+    {
+      background-color: green;
+    }
+  }
+}
