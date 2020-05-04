@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import BoardTile from './BoardTile';
 import EmptySpace from './EmptySpace';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import Draggable from 'react-draggable';
-
-import Maybe from 'sanctuary-maybe';
-import Nothing from 'sanctuary-maybe';
-
-import { Pad } from 'react-pannable';
 
 import './Board.scss';
 
@@ -19,23 +13,9 @@ function cantorPairing(a, b) {
   return (0.5) * (a + b) * (a + b + 1) + b;
 }
 
-function just(maybe) {
-  if (maybe.isNothing) throw Error("Tried to access value of Nothing.");
-
-  return maybe.value;
-}
-
-function orElse(def, maybe) {
-  return maybe.isJust
-    ? maybe.value
-    : def;
-}
-
 function pointsEqual(a, b) {
   return a.r === b.r && a.c === b.c;
 }
-
-
 
 export default function Board(props) {
 

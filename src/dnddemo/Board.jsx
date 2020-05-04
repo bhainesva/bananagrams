@@ -40,13 +40,7 @@ function renderSquare(i, knightPosition) {
 }
 
 function renderPiece(x, y, [knightX, knightY]) {
-  if (x === knightX && y == knightY) {
+  if (x === knightX && y === knightY) {
     return <Knight />;
-  }
-}
-
-function handleSquareClick(toX, toY) {
-  if (canMoveKnight(toX, toY)) {
-    moveKnight(toX, toY);
   }
 }

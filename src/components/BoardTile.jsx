@@ -7,7 +7,6 @@ import Tile from './Tile';
 
 export default function BoardTile(props) {
   const { r, c } = props;
-  console.log(props);
 
   const ref = useRef(null);
 

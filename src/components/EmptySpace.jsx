@@ -5,12 +5,12 @@ import { useDrop } from 'react-dnd';
 import { Types } from './Types';
 
 export default function EmptySpace(props) {
-  const { x, y } = props;
+  const { r, c } = props;
 
   const [{ isOver }, drop] = useDrop({
     accept: Types.TILE,
     drop: item => {
-      props.onDrop(item.id, {x, y});
+      props.onDrop(item.id, {r, c});
     },
 		collect: monitor => ({
 			isOver: !!monitor.isOver(),

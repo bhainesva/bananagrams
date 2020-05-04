@@ -12,7 +12,7 @@ export default function Staging(props) {
     </div>
   ))
   return (
-    <div class="Staging">
+    <div className="Staging">
       {tiles}
     </div>
   )

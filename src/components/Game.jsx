@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { remove, always, contains, indexOf } from 'ramda';
+import { remove, always, contains, append, indexOf } from 'ramda';
 
 import Board from './Board';
 import Staging from './Staging';
@@ -82,10 +82,29 @@ function pointsEqual(a, b) {
 
 function adjacent({r, c}, direction) {
   return direction === 'right'
-    ? {r, c: c+1}
+      ? {r, c: c+1}
     : direction === 'down'
       ? {r: r+1, c}
-      : {r, c}
+    : direction === 'left'
+      ? {r, c: c-1}
+    : direction === 'up'
+     ? {r: r-1, c}
+    : {r, c}
+}
+
+function oppositeDirection(direction) {
+  switch(direction) {
+    case 'left':
+      return 'right'
+    case 'right':
+      return 'left'
+    case 'down':
+      return 'up'
+    case 'up':
+      return 'down'
+    default:
+      return 'left'
+  }
 }
 
 function nextSelectedSpace(board, {r, c}, direction) {
@@ -99,7 +118,6 @@ export default function Game() {
   const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: initialBag, staging: []})
   const [{selectedCell, selectedDirection}, setSelected] = useState({selectedCell: null, selectedDirection: null});
 
-  console.log("selected cell: ", selectedCell);
   useEffect(() => {
     const listener =  (e) => {
       if (contains(e.key, staging)) {
@@ -112,13 +130,46 @@ export default function Game() {
           selectedCell: nextSelectedSpace(board, selectedCell, selectedDirection),
           selectedDirection: selectedDirection,
         });
+      } else {
+        if (e.key === 'ArrowDown') {
+          setSelected(({selectedCell, selectedDirection}) => ({
+            selectedCell: selectedDirection === 'down' ? nextSelectedSpace(board, selectedCell, 'down') : selectedCell,
+            selectedDirection: 'down',
+          }))
+        } else if (e.key === 'ArrowLeft') {
+          setSelected(({selectedCell, selectedDirection}) => ({
+            selectedCell: nextSelectedSpace(board, selectedCell, 'left'),
+            selectedDirection: selectedDirection,
+          }))
+        } else if (e.key === 'ArrowRight') {
+          setSelected(({selectedCell, selectedDirection}) => ({
+            selectedCell: selectedDirection === 'right' ? nextSelectedSpace(board, selectedCell, 'right') : selectedCell,
+            selectedDirection: 'right',
+          }))
+        } else if (e.key === 'ArrowUp') {
+          setSelected(({selectedCell, selectedDirection}) => ({
+            selectedCell: nextSelectedSpace(board, selectedCell, 'up'),
+            selectedDirection: selectedDirection,
+          }))
+        } else if (e.key === 'Backspace') {
+          e.preventDefault();
+          setState(({bag, board, staging}) => ({
+            board: insertLetter(board, selectedCell, ''),
+            staging: board[selectedCell.r][selectedCell.c] !== '' ? append(board[selectedCell.r][selectedCell.c], staging) : staging,
+            bag: bag,
+          }))
+          setSelected(({selectedCell, selectedDirection}) => ({
+            selectedCell: nextSelectedSpace(board, selectedCell, oppositeDirection(selectedDirection)),
+            selectedDirection: selectedDirection,
+          }))
+        }
       }
     }
 
-    window.addEventListener('keypress', listener);
+    window.addEventListener('keydown', listener);
 
-    return () => window.removeEventListener('keypress', listener);
-  }, [selectedCell]);
+    return () => window.removeEventListener('keydown', listener);
+  }, [selectedCell, bag, board, staging, selectedDirection]);
 
   function onEmptySquareClick(point) {
     if (!selectedCell || !pointsEqual(point, selectedCell)) {
@@ -127,11 +178,9 @@ export default function Game() {
         selectedDirection: 'right',
       })
     } else {
-      console.log("clicked same cell")
-      console.log(selectedDirection == 'right' ? 'down' : null)
       setSelected({
-        selectedCell: selectedDirection == 'right' ? point : null,
-        selectedDirection: selectedDirection == 'right' ? 'down' : null,
+        selectedCell: selectedDirection === 'right' ? point : null,
+        selectedDirection: selectedDirection === 'right' ? 'down' : null,
       })
     }
   }
