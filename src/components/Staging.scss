@@ -1,0 +1,12 @@
+.Staging
+{
+  display: grid;
+  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 4px;
+
+  background-color: gray;
+  border: 1px solid black;
+
+  min-width: 100px;
+}

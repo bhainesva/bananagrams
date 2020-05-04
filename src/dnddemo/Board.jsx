@@ -7,7 +7,7 @@ import { moveKnight, canMoveKnight } from './Game';
 
 export default function Board({ knightPosition }) {
   const squares = [];
-  for (let i = 0; i < 64; i++) {
+  for (let i = 0; i < 600; i++) {
     squares.push(renderSquare(i, knightPosition));
   }
   return (

@@ -8,12 +8,16 @@
     "@testing-library/user-event": "^7.1.2",
     "classnames": "^2.2.6",
     "node-sass": "^4.14.0",
+    "ramda": "^0.27.0",
     "react": "^16.13.1",
     "react-dnd": "^10.0.2",
     "react-dnd-html5-backend": "^10.0.2",
     "react-dom": "^16.13.1",
+    "react-draggable": "^4.3.1",
     "react-flip-move": "^3.0.4",
-    "react-scripts": "3.4.1"
+    "react-pannable": "^3.4.0",
+    "react-scripts": "3.4.1",
+    "sanctuary-maybe": "^2.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

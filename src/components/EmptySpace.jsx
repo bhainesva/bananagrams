@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { useDrop } from 'react-dnd';
 import { Types } from './Types';
 
-export default function BoardSquare(props) {
+export default function EmptySpace(props) {
   const { x, y } = props;
 
   const [{ isOver }, drop] = useDrop({
@@ -20,9 +20,20 @@ export default function BoardSquare(props) {
   const classes = classNames({
     "Board-square": true,
     'is-hovered': isOver,
+    'is-selected': props.selected,
   })
 
+  const direction = props.direction;
+
   return (
-    <div ref={drop} className={classes} />
+    <div ref={drop} className={classes} onClick={props.onClick}>
+      {props.selected
+        ? direction === 'right'
+          ? '-->'
+          : direction === 'down'
+            ? '|\nv'
+            : null
+        : null}
+    </div>
   )
 }
