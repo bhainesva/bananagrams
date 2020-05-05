@@ -47,6 +47,7 @@ export default function Board(props) {
           letter={letter}
           r={r}
           c={c}
+          onClick={() => props.onEmptySquareClick({r, c})}
           key={cantorPairing(r, c)}
           onDrop={() => console.log("tile was dropped on tile")}
         />

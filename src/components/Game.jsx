@@ -179,7 +179,7 @@ function nextSelectedSpace(board, {r, c}, direction) {
   const nextSpace = adjacent({r, c}, direction);
   return (nextSpace.r < board.length && nextSpace.c < board[nextSpace.r].length)
     ? nextSpace
-    : null;
+    : {r, c};
 }
 
 export default function Game() {

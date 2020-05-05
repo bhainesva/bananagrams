@@ -40,7 +40,7 @@ export default function BoardTile(props) {
   }
 
   return (
-    <div className="" style={style}>
+    <div className="" style={style} onClick={props.onClick}>
       <Tile letter={props.letter} />
     </div>
   )

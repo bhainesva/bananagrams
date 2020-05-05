@@ -6,6 +6,7 @@
 
   &-square
   {
+    position: relative;
     background-color: lightgray;
     border: 2px solid paleturquoise;
 
@@ -13,11 +14,15 @@
     {
       background-color: green;
     }
+  }
 
-    &.is-selected
-    {
-      border: 2px solid palevioletred;
-    }
+  &-squareOverlay
+  {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    border: 2px solid palevioletred;
+    z-index: 200;
   }
 }
 

@@ -1,4 +1,3 @@
-Allow selection of cells with tiles already on them
 Re-enable drag-n-drop functionality
 Make playing area larger and enable panning
 Add game over message

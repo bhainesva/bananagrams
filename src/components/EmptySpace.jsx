@@ -27,13 +27,10 @@ export default function EmptySpace(props) {
 
   return (
     <div ref={drop} className={classes} onClick={props.onClick}>
-      {props.selected
-        ? direction === 'right'
-          ? '→'
-          : direction === 'down'
-            ? '↓'
-            : null
-        : null}
+        {props.selected && (<div className="Board-squareOverlay"
+        style={{zIndex: `${c+1}${r+2}`}}>
+          {direction === 'right' ? '→' : '↓'}
+        </div>)}
     </div>
   )
 }
