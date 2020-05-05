@@ -1,10 +1,9 @@
 Allow selection of cells with tiles already on them
+memoize graph connection calculation. don't need to do it every time selection moves...
 Re-enable drag-n-drop functionality
 Make playing area larger and enable panning
 Add game over message
 
-maybe add validation that all tiles are played and connected
 maybe add word validation stuff
-
 
 make it pretty

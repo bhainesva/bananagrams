@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { remove, always, contains, append, indexOf } from 'ramda';
+import { curry, remove, always, contains, append, indexOf } from 'ramda';
 
 import Board from './Board';
 import Staging from './Staging';
@@ -34,20 +34,34 @@ const initialBag = [
   ...Array(2).fill('z'),
 ];
 
+const smallBag = [
+  ...Array(4).fill('a'),
+  ...Array(2).fill('b'),
+  ...Array(2).fill('c'),
+  ...Array(2).fill('d'),
+  ...Array(4).fill('e'),
+  ...Array(2).fill('f'),
+  ...Array(2).fill('g'),
+];
+
 const BOARD_SIZE = 15;
 
 function select1(list) {
   const index = Math.floor(Math.random() * list.length);
-  return {value: list[index], remaining: remove(index, 1, list)}
+  console.log("list length: ", list.length);
+  const values = list.length ? [list[index]] : [];
+  return {values, remaining: remove(index, 1, list)}
 }
 
 function selectX(list, x) {
-  const selections = [];
+  console.log("selecting from :" , list)
+  let selections = [];
   let selectionList = list;
 
   for (let i = 0; i < x; i++) {
-    const {value, remaining} = select1(selectionList);
-    selections.push(value);
+    const {values, remaining} = select1(selectionList);
+    console.log("select 1: ", values);
+    selections = [...selections, ...values];
     selectionList = remaining;
   }
 
@@ -68,6 +82,60 @@ function boardIsEmpty(board) {
   }
 
   return true;
+}
+
+function tilesOnBoard(board) {
+  return board.reduce((acc, row) => {
+    return acc + row.reduce((acc2, letter) => {
+      return acc2 + (letter === '' ? 0 : 1)
+    }, 0)
+  }, 0)
+}
+
+
+function getNeighbors({r, c}) {
+  return [
+    {r: r+1, c},
+    {r: r-1, c},
+    {r, c: c+1},
+    {r, c: c-1},
+  ]
+}
+
+const inBounds = curry((board, {r, c}) => {
+  return 0 <= r && r < board.length && 0 <= c && c < board[r].length;
+});
+
+function firstOccupiedSquare(board) {
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[r].length; c++) {
+      if (board[r][c]) return {r, c}
+    }
+  }
+}
+
+function tilesConnected(board) {
+  if (boardIsEmpty(board)) return true;
+  const totalTiles = tilesOnBoard(board);
+  const {r, c} = firstOccupiedSquare(board);
+  const seen = new Set();
+  let stack = [{r, c}];
+  let count = 0;
+
+  while (stack.length) {
+    const current = stack.pop();
+    seen.add(`${current.r},${current.c}`);
+    count += 1;
+    const n = getNeighbors(current)
+      .filter(inBounds(board))
+      .filter(({r, c}) => !!board[r][c])
+      .filter(({r, c}) => !seen.has(`${r},${c}`))
+    console.log("current: ", current)
+    console.log("neighbors: ", n)
+    stack = [...stack, ...n];
+  }
+
+  return totalTiles === count;
 }
 
 const initialTiles =
@@ -115,17 +183,19 @@ function nextSelectedSpace(board, {r, c}, direction) {
 }
 
 export default function Game() {
-  const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: initialBag, staging: []})
+  const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: smallBag, staging: []})
   const [{selectedCell, selectedDirection}, setSelected] = useState({selectedCell: null, selectedDirection: null});
+
+  console.log("bag: ", bag);
 
   useEffect(() => {
     const listener =  (e) => {
       if (contains(e.key, staging)) {
-        setState({
+        setState(({board, bag, staging}) => ({
           board: insertLetter(board, selectedCell, e.key),
           bag: bag,
-          staging: remove(indexOf(e.key, staging), 1, staging),
-        });
+          staging: board[selectedCell.r][selectedCell.c] === '' ? remove(indexOf(e.key, staging), 1, staging) : append(board[selectedCell.r][selectedCell.c], remove(indexOf(e.key, staging), 1, staging)),
+        }));
         setSelected({
           selectedCell: nextSelectedSpace(board, selectedCell, selectedDirection),
           selectedDirection: selectedDirection,
@@ -187,6 +257,7 @@ export default function Game() {
 
   const drawTiles = (n) => {
     const { values, remaining } = selectX(bag, n);
+    console.log("got values: ", values);
 
     setState((prevState) => ({
       ...prevState,
@@ -195,7 +266,9 @@ export default function Game() {
     }));
   }
 
-  const empty = boardIsEmpty(board) && staging.length === 0;
+  const noActiveTiles = boardIsEmpty(board) && staging.length === 0;
+  const bagEmpty = bag.length === 0;
+  const connected = tilesConnected(board);
 
   return (
     <div>
@@ -210,9 +283,10 @@ export default function Game() {
           tiles={board} />
         <Staging letters={staging} />
       </div>
-      {empty && <button onClick={() => drawTiles(21)}>DRAW TILES</button>}
+      {noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
       <br />
-      {!empty && <button onClick={() => drawTiles(1)}>PEEL</button>}
+      {!noActiveTiles && connected && !bagEmpty && staging.length===0 && <button onClick={() => drawTiles(1)}>PEEL</button>}
+      {bagEmpty && connected && staging.length===0 && <button onClick={() => drawTiles(1)}>BANANAS!</button>}
     </div>
   )
 }

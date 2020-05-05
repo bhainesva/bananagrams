@@ -29,9 +29,9 @@ export default function EmptySpace(props) {
     <div ref={drop} className={classes} onClick={props.onClick}>
       {props.selected
         ? direction === 'right'
-          ? '-->'
+          ? '→'
           : direction === 'down'
-            ? '|\nv'
+            ? '↓'
             : null
         : null}
     </div>
