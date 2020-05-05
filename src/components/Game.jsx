@@ -142,7 +142,7 @@ const initialTiles =
   Array.from({length: BOARD_SIZE}).map(() =>
     Array.from({length: BOARD_SIZE}).map(
       always('')));
-initialTiles[Math.floor(BOARD_SIZE/2)][Math.floor(BOARD_SIZE/2)] = 'z';
+// initialTiles[Math.floor(BOARD_SIZE/2)][Math.floor(BOARD_SIZE/2)] = 'z';
 
 
 function pointsEqual(a, b) {
@@ -315,10 +315,11 @@ export default function Game() {
         </div>
         <Staging letters={staging} />
       </div>
-      {noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
-      <br />
-      {!noActiveTiles && connected && !bagEmpty && staging.length===0 && <button onClick={() => drawTiles(1)}>PEEL</button>}
-      {bagEmpty && connected && staging.length===0 && <button onClick={() => drawTiles(1)}>BANANAS!</button>}
+      <div>
+        {noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
+        {<button disabled={!connected || bagEmpty || staging.length!==0} onClick={() => drawTiles(1)}>PEEL</button>}
+        {<button disabled={!bagEmpty || !connected || staging.length!==0} onClick={() => drawTiles(1)}>BANANAS!</button>}
+      </div>
     </div>
   )
 }
