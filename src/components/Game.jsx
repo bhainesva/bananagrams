@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { curry, remove, always, contains, append, indexOf } from 'ramda';
 
@@ -268,7 +268,7 @@ export default function Game() {
 
   const noActiveTiles = boardIsEmpty(board) && staging.length === 0;
   const bagEmpty = bag.length === 0;
-  const connected = tilesConnected(board);
+  const connected = useMemo(() => tilesConnected(board), [board]);
 
   return (
     <div>
