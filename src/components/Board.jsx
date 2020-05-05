@@ -56,18 +56,16 @@ export default function Board(props) {
   }));
 
   return (
-    <div onScroll={console.log}>
-      <DndProvider backend={Backend}>
-        <div className="Board"
-          style={{
-            display: 'grid',
-            gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
-          }}
-        >
-          {squares}
-          {tileSquares}
-        </div>
-      </DndProvider>
-    </div>
+    <DndProvider backend={Backend}>
+      <div className="Board"
+        style={{
+          display: 'grid',
+          gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
+        }}
+      >
+        {squares}
+        {tileSquares}
+      </div>
+    </DndProvider>
   )
 }

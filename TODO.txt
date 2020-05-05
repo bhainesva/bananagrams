@@ -1,5 +1,4 @@
 Re-enable drag-n-drop functionality
-Make playing area larger and enable panning
 Add game over message
 
 maybe add word validation stuff

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 import { curry, remove, always, contains, append, indexOf } from 'ramda';
 
+import Draggable from 'react-draggable';
+
 import Board from './Board';
 import Staging from './Staging';
 
@@ -44,7 +46,7 @@ const smallBag = [
   ...Array(2).fill('g'),
 ];
 
-const BOARD_SIZE = 15;
+const BOARD_SIZE = 30;
 
 function select1(list) {
   const index = Math.floor(Math.random() * list.length);
@@ -130,8 +132,6 @@ function tilesConnected(board) {
       .filter(inBounds(board))
       .filter(({r, c}) => !!board[r][c])
       .filter(({r, c}) => !seen.has(`${r},${c}`))
-    console.log("current: ", current)
-    console.log("neighbors: ", n)
     stack = [...stack, ...n];
   }
 
@@ -142,6 +142,7 @@ const initialTiles =
   Array.from({length: BOARD_SIZE}).map(() =>
     Array.from({length: BOARD_SIZE}).map(
       always('')));
+initialTiles[Math.floor(BOARD_SIZE/2)][Math.floor(BOARD_SIZE/2)] = 'z';
 
 
 function pointsEqual(a, b) {
@@ -185,8 +186,7 @@ function nextSelectedSpace(board, {r, c}, direction) {
 export default function Game() {
   const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: smallBag, staging: []})
   const [{selectedCell, selectedDirection}, setSelected] = useState({selectedCell: null, selectedDirection: null});
-
-  console.log("bag: ", bag);
+  const [spacebarPressed, setSpacebarPressed] = useState(false);
 
   useEffect(() => {
     const listener =  (e) => {
@@ -232,16 +232,29 @@ export default function Game() {
             selectedCell: nextSelectedSpace(board, selectedCell, oppositeDirection(selectedDirection)),
             selectedDirection: selectedDirection,
           }))
+        } else if (e.key === ' ') {
+          setSpacebarPressed(true);
         }
       }
     }
 
     window.addEventListener('keydown', listener);
 
-    return () => window.removeEventListener('keydown', listener);
-  }, [selectedCell, bag, board, staging, selectedDirection]);
+    function spaceUpListener(e) {
+      if (e.key === ' ') {
+        setSpacebarPressed(false);
+      }
+    }
+    window.addEventListener('keyup', spaceUpListener)
 
-  function onEmptySquareClick(point) {
+    return () => {
+      window.removeEventListener('keydown', listener);
+      window.removeEventListener('keyup', spaceUpListener);
+    }
+  }, [selectedCell, bag, board, staging, selectedDirection, spacebarPressed]);
+
+  function onEmptySquareClick(spacebarPressed, point) {
+    if (spacebarPressed) return;
     if (!selectedCell || !pointsEqual(point, selectedCell)) {
       setSelected({
         selectedCell: (point),
@@ -275,12 +288,31 @@ export default function Game() {
       <div style={{
         display: 'flex',
       }}>
-        <Board
-          size={BOARD_SIZE}
-          selectedCell={selectedCell}
-          selectedDirection={selectedDirection}
-          onEmptySquareClick={onEmptySquareClick}
-          tiles={board} />
+        <div className="Board-window" style={{
+          height: 800,
+          width: 800,
+          border: '2px solid magenta',
+          overflow: 'hidden',
+          backgroundColor: 'wheat',
+        }}>
+          <Draggable onStart={() => {
+            if (!spacebarPressed) return false
+          }}>
+            <div style={{
+              position: 'relative',
+              cursor: spacebarPressed ? 'grab' : 'default',
+              left: -BOARD_SIZE * 50 / 4,
+              top: -BOARD_SIZE * 50 / 4
+            }}>
+              <Board
+                size={BOARD_SIZE}
+                selectedCell={selectedCell}
+                selectedDirection={selectedDirection}
+                onEmptySquareClick={(e) => onEmptySquareClick(spacebarPressed, e)}
+                tiles={board} />
+            </div>
+          </Draggable>
+        </div>
         <Staging letters={staging} />
       </div>
       {noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
