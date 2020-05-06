@@ -187,6 +187,7 @@ export default function Game() {
   const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: smallBag, staging: []})
   const [{selectedCell, selectedDirection}, setSelected] = useState({selectedCell: null, selectedDirection: null});
   const [spacebarPressed, setSpacebarPressed] = useState(false);
+  const [won, setWon] = useState(false);
 
   useEffect(() => {
     const listener =  (e) => {
@@ -268,9 +269,22 @@ export default function Game() {
     }
   }
 
+  function restart() {
+    setState({
+      board: initialTiles,
+      bag: initialBag,
+      staging: [],
+    })
+
+    setWon(false);
+  }
+
+  function win() {
+    setWon(true);
+  }
+
   const drawTiles = (n) => {
     const { values, remaining } = selectX(bag, n);
-    console.log("got values: ", values);
 
     setState((prevState) => ({
       ...prevState,
@@ -316,9 +330,11 @@ export default function Game() {
         <Staging letters={staging} />
       </div>
       <div>
-        {noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
-        {<button disabled={!connected || bagEmpty || staging.length!==0} onClick={() => drawTiles(1)}>PEEL</button>}
-        {<button disabled={!bagEmpty || !connected || staging.length!==0} onClick={() => drawTiles(1)}>BANANAS!</button>}
+        {won && "YOU WON!"}
+        {!won && noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
+        {!won && <button disabled={!connected || bagEmpty || staging.length!==0} onClick={() => drawTiles(1)}>PEEL</button>}
+        {!won && <button disabled={!bagEmpty || !connected || staging.length!==0} onClick={win}>BANANAS!</button>}
+        {<button onClick={restart}>Restart</button>}
       </div>
     </div>
   )
