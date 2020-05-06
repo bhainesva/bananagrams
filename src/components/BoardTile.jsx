@@ -11,7 +11,7 @@ export default function BoardTile(props) {
   const ref = useRef(null);
 
   const [{isDragging}, drag] = useDrag({
-    item: { type: Types.TILE, id: {r, c} },
+    item: { type: Types.TILE, id: {r, c, letter: props.letter} },
 		collect: monitor => ({
 			isDragging: !!monitor.isDragging(),
 		}),

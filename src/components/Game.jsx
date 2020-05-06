@@ -3,6 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { curry, remove, always, contains, append, indexOf } from 'ramda';
 
 import Draggable from 'react-draggable';
+import { DndProvider } from 'react-dnd';
+import Backend from 'react-dnd-html5-backend';
 
 import Board from './Board';
 import Staging from './Staging';
@@ -70,6 +72,12 @@ function selectX(list, x) {
 function insertLetter(board, {r, c}, letter) {
   const clone = board.map(row => row.slice());
   clone[r][c] = letter;
+  return clone;
+}
+
+function removeLetter(board, {r, c}) {
+  const clone = board.map(row => row.slice());
+  clone[r][c] = '';
   return clone;
 }
 
@@ -298,6 +306,20 @@ export default function Game() {
     }));
   }
 
+  function onTileDrop({board, staging}, id, dest) {
+    if (dest === null) {
+      return {
+        board:  id.r !== null ? removeLetter(board, id) : board,
+        staging: id.r !== null ? append(id.letter, staging) : staging,
+      }
+    } else {
+      return {
+        board:  id.r !== null ? swapTile(board, id, dest) : insertLetter(board, dest, id.letter),
+        staging: id.r !== null ? staging : remove(indexOf(id.letter, staging), 1, staging),
+      }
+    }
+  }
+
   const noActiveTiles = boardIsEmpty(board) && staging.length === 0;
   const bagEmpty = bag.length === 0;
   const connected = useMemo(() => tilesConnected(board), [board]);
@@ -307,6 +329,7 @@ export default function Game() {
       <div style={{
         display: 'flex',
       }}>
+      <DndProvider backend={Backend}>
         <div className="Board-window" style={{
           height: 800,
           width: 800,
@@ -328,15 +351,20 @@ export default function Game() {
                 selectedCell={selectedCell}
                 selectedDirection={selectedDirection}
                 onEmptySquareClick={(e) => onEmptySquareClick(spacebarPressed, e)}
-                onTileDrop={(p1, p2) => setState((state) => ({
+                onTileDrop={(id, dest) => setState((state) => ({
                   ...state,
-                  board:  swapTile(board, p1, p2)
+                  ...onTileDrop(state, id, dest),
                 }))}
                 tiles={board} />
             </div>
           </Draggable>
         </div>
-        <Staging letters={staging} />
+        <Staging letters={staging}
+                  onDrop={(id, dest) => setState((state) => ({
+                    ...state,
+                    ...onTileDrop(state, id, dest),
+                  }))} />
+      </DndProvider>
       </div>
       <div>
         {won && "YOU WON!"}

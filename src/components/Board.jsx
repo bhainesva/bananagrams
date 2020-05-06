@@ -2,8 +2,6 @@ import React from 'react';
 
 import BoardTile from './BoardTile';
 import EmptySpace from './EmptySpace';
-import { DndProvider } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
 
 import './Board.scss';
 
@@ -56,16 +54,14 @@ export default function Board(props) {
   }));
 
   return (
-    <DndProvider backend={Backend}>
-      <div className="Board"
-        style={{
-          display: 'grid',
-          gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
-        }}
-      >
-        {squares}
-        {tileSquares}
-      </div>
-    </DndProvider>
+    <div className="Board"
+      style={{
+        display: 'grid',
+        gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
+      }}
+    >
+      {squares}
+      {tileSquares}
+    </div>
   )
 }

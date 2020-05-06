@@ -1,5 +1,6 @@
-add drag and drop to/from staging area
 make it faster. changing the selected square should be instantaneous, nothing changes based on that
+
+ungrossify everything
 
 maybe add word validation stuff
 
