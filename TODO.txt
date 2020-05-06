@@ -2,6 +2,8 @@ make it faster. changing the selected square should be instantaneous, nothing ch
 
 bug: can't drag tiles that have the 'selected' box over them
 
+add instructions so someone can test it and know what's going on
+
 ungrossify everything
 
 maybe add word validation stuff
