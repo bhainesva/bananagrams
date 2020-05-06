@@ -1,4 +1,3 @@
-fix connected alg it incorrectly returns false sometimes
 Re-enable drag-n-drop functionality
 make it faster. changing the selected square should be instantaneous, nothing changes based on that
 

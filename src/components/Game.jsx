@@ -50,19 +50,16 @@ const BOARD_SIZE = 30;
 
 function select1(list) {
   const index = Math.floor(Math.random() * list.length);
-  console.log("list length: ", list.length);
   const values = list.length ? [list[index]] : [];
   return {values, remaining: remove(index, 1, list)}
 }
 
 function selectX(list, x) {
-  console.log("selecting from :" , list)
   let selections = [];
   let selectionList = list;
 
   for (let i = 0; i < x; i++) {
     const {values, remaining} = select1(selectionList);
-    console.log("select 1: ", values);
     selections = [...selections, ...values];
     selectionList = remaining;
   }
@@ -126,12 +123,12 @@ function tilesConnected(board) {
 
   while (stack.length) {
     const current = stack.pop();
+    if (seen.has(`${current.r},${current.c}`)) continue;
     seen.add(`${current.r},${current.c}`);
     count += 1;
     const n = getNeighbors(current)
       .filter(inBounds(board))
       .filter(({r, c}) => !!board[r][c])
-      .filter(({r, c}) => !seen.has(`${r},${c}`))
     stack = [...stack, ...n];
   }
 
