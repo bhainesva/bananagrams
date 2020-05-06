@@ -280,6 +280,14 @@ export default function Game() {
     setWon(true);
   }
 
+  const swapTile = curry((board, pt1, pt2) => {
+    const clone = board.map(row => row.slice());
+    const tmp = clone[pt1.r][pt1.c];
+    clone[pt1.r][pt1.c] = clone[pt2.r][pt2.c];
+    clone[pt2.r][pt2.c] = tmp;
+    return clone
+  })
+
   const drawTiles = (n) => {
     const { values, remaining } = selectX(bag, n);
 
@@ -320,6 +328,10 @@ export default function Game() {
                 selectedCell={selectedCell}
                 selectedDirection={selectedDirection}
                 onEmptySquareClick={(e) => onEmptySquareClick(spacebarPressed, e)}
+                onTileDrop={(p1, p2) => setState((state) => ({
+                  ...state,
+                  board:  swapTile(board, p1, p2)
+                }))}
                 tiles={board} />
             </div>
           </Draggable>

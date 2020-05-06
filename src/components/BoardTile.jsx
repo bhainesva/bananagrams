@@ -40,8 +40,8 @@ export default function BoardTile(props) {
   }
 
   return (
-    <div className="" style={style} onClick={props.onClick}>
-      <Tile letter={props.letter} />
+    <div className="" style={style} ref={ref} onClick={props.onClick}>
+      <Tile letter={props.letter} isHighlighted={isOver} />
     </div>
   )
 }

@@ -33,7 +33,7 @@ export default function Board(props) {
           selected={isSelected}
           direction={props.selectedDirection}
           onClick={() => props.onEmptySquareClick({r, c})}
-          onDrop={() => console.log("Tile was dropped on square")}
+          onDrop={props.onTileDrop}
           key={r * props.size + c}
         />
       );
@@ -49,7 +49,7 @@ export default function Board(props) {
           c={c}
           onClick={() => props.onEmptySquareClick({r, c})}
           key={cantorPairing(r, c)}
-          onDrop={() => console.log("tile was dropped on tile")}
+          onDrop={props.onTileDrop}
         />
       : null
     )
