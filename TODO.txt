@@ -1,4 +1,4 @@
-Re-enable drag-n-drop functionality
+add drag and drop to/from staging area
 make it faster. changing the selected square should be instantaneous, nothing changes based on that
 
 maybe add word validation stuff
