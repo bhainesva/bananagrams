@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { curry, remove, always, contains, append, indexOf } from 'ramda';
 
@@ -149,6 +149,9 @@ const initialTiles =
       always('')));
 // initialTiles[Math.floor(BOARD_SIZE/2)][Math.floor(BOARD_SIZE/2)] = 'z';
 
+const flexStyle = {
+  display: 'flex',
+}
 
 function pointsEqual(a, b) {
   return a.r === b.r && a.c === b.c;
@@ -187,6 +190,36 @@ function nextSelectedSpace(board, {r, c}, direction) {
     ? nextSpace
     : {r, c};
 }
+
+const boardWindowStyle = {
+  height: 800,
+  width: 800,
+  border: '2px solid magenta',
+  overflow: 'hidden',
+  backgroundColor: 'wheat',
+};
+
+const swapTile = curry((board, pt1, pt2) => {
+  const clone = board.map(row => row.slice());
+  const tmp = clone[pt1.r][pt1.c];
+  clone[pt1.r][pt1.c] = clone[pt2.r][pt2.c];
+  clone[pt2.r][pt2.c] = tmp;
+  return clone
+});
+
+const onTileDrop = ({board, staging}, id, dest) => {
+  if (dest === null) {
+    return {
+      board:  id.r !== null ? removeLetter(board, id) : board,
+      staging: id.r !== null ? append(id.letter, staging) : staging,
+    }
+  } else {
+    return {
+      board:  id.r !== null ? swapTile(board, id, dest) : insertLetter(board, dest, id.letter),
+      staging: id.r !== null ? staging : remove(indexOf(id.letter, staging), 1, staging),
+    }
+  }
+};
 
 export default function Game() {
   const [{ board, bag, staging }, setState] = useState({board: initialTiles, bag: smallBag, staging: []})
@@ -259,7 +292,7 @@ export default function Game() {
     }
   }, [selectedCell, bag, board, staging, selectedDirection, spacebarPressed]);
 
-  function onEmptySquareClick(spacebarPressed, point) {
+  const onEmptySquareClick = useMemo(() => (spacebarPressed, point) => {
     if (spacebarPressed) return;
     if (!selectedCell || !pointsEqual(point, selectedCell)) {
       setSelected({
@@ -272,7 +305,9 @@ export default function Game() {
         selectedDirection: selectedDirection === 'right' ? 'down' : null,
       })
     }
-  }
+  }, [selectedCell, selectedDirection]);
+
+  const handleEmptySquareClick = useMemo(() => (e) => onEmptySquareClick(spacebarPressed, e), [spacebarPressed, onEmptySquareClick]);
 
   function restart() {
     setState({
@@ -288,15 +323,7 @@ export default function Game() {
     setWon(true);
   }
 
-  const swapTile = curry((board, pt1, pt2) => {
-    const clone = board.map(row => row.slice());
-    const tmp = clone[pt1.r][pt1.c];
-    clone[pt1.r][pt1.c] = clone[pt2.r][pt2.c];
-    clone[pt2.r][pt2.c] = tmp;
-    return clone
-  })
-
-  const drawTiles = (n) => {
+  const drawTiles = useMemo(() => (n) => {
     const { values, remaining } = selectX(bag, n);
 
     setState((prevState) => ({
@@ -304,72 +331,55 @@ export default function Game() {
       bag: remaining,
       staging: [...prevState.staging, ...values]
     }));
-  }
+  }, [bag]);
 
-  function onTileDrop({board, staging}, id, dest) {
-    if (dest === null) {
-      return {
-        board:  id.r !== null ? removeLetter(board, id) : board,
-        staging: id.r !== null ? append(id.letter, staging) : staging,
-      }
-    } else {
-      return {
-        board:  id.r !== null ? swapTile(board, id, dest) : insertLetter(board, dest, id.letter),
-        staging: id.r !== null ? staging : remove(indexOf(id.letter, staging), 1, staging),
-      }
-    }
-  }
+  const draw15Tiles = useMemo(() => () => drawTiles(15), [drawTiles]);
+  const draw1Tile = useMemo(() => () => drawTiles(1), [drawTiles]);
+
+
 
   const noActiveTiles = boardIsEmpty(board) && staging.length === 0;
   const bagEmpty = bag.length === 0;
   const connected = useMemo(() => tilesConnected(board), [board]);
 
+  const onStart = useCallback(() => spacebarPressed, [spacebarPressed]);
+  const draggableStyle = useMemo(() => ({
+    position: 'relative',
+    cursor: spacebarPressed ? 'grab' : 'default',
+    left: -BOARD_SIZE * 50 / 4,
+    top: -BOARD_SIZE * 50 / 4
+  }), [spacebarPressed]);
+
+  const handleTileDrop = useCallback((id, dest) => setState((state) => ({
+    ...state,
+    ...onTileDrop(state, id, dest),
+  })), [setState]);
+
   return (
     <div>
-      <div style={{
-        display: 'flex',
-      }}>
+      <div style={flexStyle}>
       <DndProvider backend={Backend}>
-        <div className="Board-window" style={{
-          height: 800,
-          width: 800,
-          border: '2px solid magenta',
-          overflow: 'hidden',
-          backgroundColor: 'wheat',
-        }}>
-          <Draggable onStart={() => {
-            if (!spacebarPressed) return false
-          }}>
-            <div style={{
-              position: 'relative',
-              cursor: spacebarPressed ? 'grab' : 'default',
-              left: -BOARD_SIZE * 50 / 4,
-              top: -BOARD_SIZE * 50 / 4
-            }}>
+        <div className="Board-window" style={boardWindowStyle}>
+          <Draggable onStart={onStart}>
+            <div style={draggableStyle}>
               <Board
                 size={BOARD_SIZE}
                 selectedCell={selectedCell}
                 selectedDirection={selectedDirection}
-                onEmptySquareClick={(e) => onEmptySquareClick(spacebarPressed, e)}
-                onTileDrop={(id, dest) => setState((state) => ({
-                  ...state,
-                  ...onTileDrop(state, id, dest),
-                }))}
+                onEmptySquareClick={handleEmptySquareClick}
+                onTileDrop={handleTileDrop}
                 tiles={board} />
             </div>
           </Draggable>
         </div>
         <Staging letters={staging}
-                  onDrop={(id, dest) => setState((state) => ({
-                    ...state,
-                    ...onTileDrop(state, id, dest),
-                  }))} />
+                 onDrop={handleTileDrop} />
       </DndProvider>
       </div>
       <div>
         {won && "YOU WON!"}
-        {!won && noActiveTiles && <button onClick={() => drawTiles(15)}>DRAW TILES</button>}
-        {!won && <button disabled={!connected || bagEmpty || staging.length!==0} onClick={() => drawTiles(1)}>PEEL</button>}
+        {!won && noActiveTiles && <button onClick={draw15Tiles}>DRAW TILES</button>}
+        {!won && <button disabled={!connected || bagEmpty || staging.length!==0} onClick={draw1Tile}>PEEL</button>}
         {!won && <button disabled={!bagEmpty || !connected || staging.length!==0} onClick={win}>BANANAS!</button>}
         {<button onClick={restart}>Restart</button>}
       </div>

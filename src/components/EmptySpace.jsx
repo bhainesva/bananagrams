@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 
 import classNames from 'classnames'
 import { useDrop } from 'react-dnd';
 import { Types } from './Types';
 
 export default function EmptySpace(props) {
-  const { r, c } = props;
+  const { r, c, handleClick } = props;
+
+  const onClick = useCallback(() => {
+    handleClick({r, c});
+  }, [r, c, handleClick]);
+
 
   const [{ isOver }, drop] = useDrop({
     accept: Types.TILE,
@@ -24,11 +29,14 @@ export default function EmptySpace(props) {
   })
 
   const direction = props.direction;
+  const styles = useMemo(() => ({
+    zIndex: `${c+1}${r+2}`,
+  }), [r, c]);
 
   return (
-    <div ref={drop} className={classes} onClick={props.onClick}>
+    <div ref={drop} className={classes} onClick={onClick}>
         {props.selected && (<div className="Board-squareOverlay"
-        style={{zIndex: `${c+1}${r+2}`}}>
+        style={styles}>
           {direction === 'right' ? '→' : '↓'}
         </div>)}
     </div>

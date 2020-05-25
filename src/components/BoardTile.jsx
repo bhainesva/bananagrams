@@ -1,12 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { useDrag } from 'react-dnd';
 import { useDrop } from 'react-dnd';
 import { Types } from './Types';
+import classNames from 'classnames'
 
 import Tile from './Tile';
 
+import './BoardTile.scss';
+
 export default function BoardTile(props) {
-  const { r, c } = props;
+  const { r, c, handleClick } = props;
+
+  const onClick = useCallback(() => {
+    handleClick({r, c});
+  }, [r, c, handleClick])
 
   const ref = useRef(null);
 
@@ -28,19 +35,20 @@ export default function BoardTile(props) {
   })
 
   drag(drop(ref));
-  const style= {
-    backgroundColor: isOver ? 'blue' : 'orange',
-    position: 'absolute',
+  const style = useMemo(() => ({
     left: c*50,
     top: r*50,
-    width: 50,
-    height: 50,
     zIndex: `${c+1}${r+1}`,
-    opacity: isDragging ? 0.5 : 1,
-  }
+  }), [r, c]);
+
+  const classes = classNames({
+    "BoardTile": true,
+    'is-hovered': isOver,
+    'is-dragging': isDragging,
+  });
 
   return (
-    <div className="" style={style} ref={ref} onClick={props.onClick}>
+    <div className={classes} style={style} ref={ref} onClick={onClick}>
       <Tile letter={props.letter} isHighlighted={isOver} />
     </div>
   )

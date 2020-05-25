@@ -4,12 +4,12 @@ import classnames from 'classnames';
 
 import './Tile.scss';
 
-export default function Tile(props) {
-  const style= {
-    width: '100%',
-    height: '100%',
-  }
+const style= {
+  width: '100%',
+  height: '100%',
+}
 
+export default function Tile(props) {
   const classes = classnames({
     "Tile": true,
     "is-highlighted": props.isHighlighted,

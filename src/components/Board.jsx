@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import BoardTile from './BoardTile';
 import EmptySpace from './EmptySpace';
@@ -16,7 +16,6 @@ function pointsEqual(a, b) {
 }
 
 export default function Board(props) {
-
   const squares = [];
   for (let r = 0; r < props.size; r++) {
     for (let c = 0; c < props.size; c++) {
@@ -24,13 +23,14 @@ export default function Board(props) {
         ? pointsEqual(props.selectedCell, { r, c })
         : false;
 
+
       squares.push(
         <EmptySpace
           r={r}
           c={c}
           selected={isSelected}
           direction={props.selectedDirection}
-          onClick={() => props.onEmptySquareClick({r, c})}
+          handleClick={props.onEmptySquareClick}
           onDrop={props.onTileDrop}
           key={r * props.size + c}
         />
@@ -45,7 +45,7 @@ export default function Board(props) {
           letter={letter}
           r={r}
           c={c}
-          onClick={() => props.onEmptySquareClick({r, c})}
+          handleClick={props.onEmptySquareClick}
           key={cantorPairing(r, c)}
           onDrop={props.onTileDrop}
         />
@@ -53,12 +53,14 @@ export default function Board(props) {
     )
   }));
 
+  const styles = useMemo(() => ({
+    display: 'grid',
+    gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
+  }), [props.size]);
+
   return (
     <div className="Board"
-      style={{
-        display: 'grid',
-        gridTemplate: `repeat(${props.size}, ${TILE_SIZE}px) / repeat(${props.size}, ${TILE_SIZE}px)`,
-      }}
+      style={styles}
     >
       {squares}
       {tileSquares}
