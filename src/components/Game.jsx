@@ -292,22 +292,25 @@ export default function Game() {
     }
   }, [selectedCell, bag, board, staging, selectedDirection, spacebarPressed]);
 
-  const onEmptySquareClick = useMemo(() => (spacebarPressed, point) => {
+  const onSelectedSquareClick = useMemo(() => (spacebarPressed, point) => {
     if (spacebarPressed) return;
-    if (!selectedCell || !pointsEqual(point, selectedCell)) {
-      setSelected({
-        selectedCell: (point),
-        selectedDirection: 'right',
-      })
-    } else {
-      setSelected({
-        selectedCell: selectedDirection === 'right' ? point : null,
-        selectedDirection: selectedDirection === 'right' ? 'down' : null,
-      })
-    }
-  }, [selectedCell, selectedDirection]);
+    setSelected({
+      selectedCell: selectedDirection === 'right' ? point : null,
+      selectedDirection: selectedDirection === 'right' ? 'down' : null,
+    })
+  }, [selectedDirection]);
 
-  const handleEmptySquareClick = useMemo(() => (e) => onEmptySquareClick(spacebarPressed, e), [spacebarPressed, onEmptySquareClick]);
+  const onUnselectedCellClick = useMemo(() => (spacebarPressed, point) => {
+    if (spacebarPressed) return;
+    setSelected({
+      selectedCell: (point),
+      selectedDirection: 'right',
+    })
+  }, [setSelected]);
+
+
+  const handleSelectedSquareClick = useMemo(() => (e) => onSelectedSquareClick(spacebarPressed, e), [spacebarPressed, onSelectedSquareClick]);
+  const handleUnselectedCellClick = useMemo(() => (e) => onUnselectedCellClick(spacebarPressed, e), [spacebarPressed, onUnselectedCellClick]);
 
   function restart() {
     setState({
@@ -335,8 +338,6 @@ export default function Game() {
 
   const draw15Tiles = useMemo(() => () => drawTiles(15), [drawTiles]);
   const draw1Tile = useMemo(() => () => drawTiles(1), [drawTiles]);
-
-
 
   const noActiveTiles = boardIsEmpty(board) && staging.length === 0;
   const bagEmpty = bag.length === 0;
@@ -366,7 +367,8 @@ export default function Game() {
                 size={BOARD_SIZE}
                 selectedCell={selectedCell}
                 selectedDirection={selectedDirection}
-                onEmptySquareClick={handleEmptySquareClick}
+                onSelectedSquareClick={handleSelectedSquareClick}
+                handleUnselectedCellClick={handleUnselectedCellClick}
                 onTileDrop={handleTileDrop}
                 tiles={board} />
             </div>

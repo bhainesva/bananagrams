@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { useDrop } from 'react-dnd';
 import { Types } from './Types';
 
-export default function EmptySpace(props) {
+export default React.memo((props) => {
   const { r, c, handleClick } = props;
 
   const onClick = useCallback(() => {
@@ -41,4 +41,4 @@ export default function EmptySpace(props) {
         </div>)}
     </div>
   )
-}
+});

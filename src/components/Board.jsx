@@ -11,16 +11,14 @@ function cantorPairing(a, b) {
   return (0.5) * (a + b) * (a + b + 1) + b;
 }
 
-function pointsEqual(a, b) {
-  return a.r === b.r && a.c === b.c;
-}
-
 export default function Board(props) {
+  const selectedCell = props.selectedCell;
+
   const squares = [];
   for (let r = 0; r < props.size; r++) {
     for (let c = 0; c < props.size; c++) {
-      const isSelected = props.selectedCell
-        ? pointsEqual(props.selectedCell, { r, c })
+      const isSelected = selectedCell
+        ? selectedCell.r === r && selectedCell.c === c
         : false;
 
 
@@ -30,7 +28,7 @@ export default function Board(props) {
           c={c}
           selected={isSelected}
           direction={props.selectedDirection}
-          handleClick={props.onEmptySquareClick}
+          handleClick={isSelected ? props.onSelectedSquareClick : props.handleUnselectedCellClick}
           onDrop={props.onTileDrop}
           key={r * props.size + c}
         />
@@ -39,14 +37,18 @@ export default function Board(props) {
   }
 
   const tileSquares = props.tiles.flatMap((row, r) => row.map((letter, c) => {
+    const isSelected = selectedCell
+      ? selectedCell.r === r && selectedCell.c === c
+      : false;
+
     return (
       letter
       ? <BoardTile
           letter={letter}
           r={r}
           c={c}
-          handleClick={props.onEmptySquareClick}
-          key={cantorPairing(r, c)}
+          handleClick={isSelected ? props.onSelectedSquareClick : props.handleUnselectedCellClick}
+          key={r * props.size + c}
           onDrop={props.onTileDrop}
         />
       : null
