@@ -1,4 +1,5 @@
-make it faster. changing the selected square should be instantaneous, nothing changes based on that
+still needs to be faster. maybe separate selection box from board entirely? same for tiles? the
+board itself basically never needs to rerender right? but having the coordinates is convenient.
 
 bug: can't drag tiles that have the 'selected' box over them
 
